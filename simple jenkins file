@@ -1,0 +1,30 @@
+pipeline {
+    agent any
+
+    stages {
+
+        stage('Build') {
+            steps {
+                echo 'Building HTML application...'
+                sh 'ls -l'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Testing index.html...'
+                sh 'test -f index.html'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Build and Test completed successfully!'
+        }
+
+        failure {
+            echo 'Build or Test failed!'
+        }
+    }
+}
