@@ -1,0 +1,40 @@
+pipeline {
+
+    agent any
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'YOUR_GITHUB_REPOSITORY_URL'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t simple-web-app .'
+            }
+        }
+
+        stage('Run Container') {
+            steps {
+                sh '''
+                docker stop simple-web-app || true
+                docker rm simple-web-app || true
+                docker run -d -p 8080:80 --name simple-web-app simple-web-app
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Application deployed successfully!'
+        }
+
+        failure {
+            echo 'Deployment failed!'
+        }
+    }
+}
