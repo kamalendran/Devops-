@@ -1,0 +1,89 @@
+#!/bin/bash
+
+echo "=========================================="
+echo "        SERVER HEALTH MONITOR"
+echo "=========================================="
+
+echo ""
+echo "1. HOSTNAME"
+echo "------------------------------------------"
+hostname
+
+echo ""
+echo "2. DATE & TIME"
+echo "------------------------------------------"
+date
+
+echo ""
+echo "3. SYSTEM UPTIME"
+echo "------------------------------------------"
+uptime
+
+echo ""
+echo "4. CPU USAGE"
+echo "------------------------------------------"
+CPU=$(top -bn1 | grep "Cpu(s)" | awk '{print $2}')
+echo "CPU Usage: $CPU%"
+
+echo ""
+echo "5. MEMORY USAGE"
+echo "------------------------------------------"
+free -h
+
+echo ""
+echo "6. DISK USAGE"
+echo "------------------------------------------"
+df -h
+
+echo ""
+echo "7. TOP PROCESSES"
+echo "------------------------------------------"
+ps aux --sort=-%cpu | head -6
+
+echo ""
+echo "8. DOCKER STATUS"
+echo "------------------------------------------"
+
+if command -v docker >/dev/null 2>&1
+then
+    if systemctl is-active --quiet docker
+    then
+        echo "Docker Service: RUNNING"
+        echo ""
+        echo "Running Containers:"
+        docker ps
+    else
+        echo "Docker Service: NOT RUNNING"
+    fi
+else
+    echo "Docker is NOT INSTALLED"
+fi
+
+echo ""
+echo "9. IMPORTANT SERVICES"
+echo "------------------------------------------"
+
+for SERVICE in ssh docker jenkins
+do
+    if systemctl list-unit-files | grep -q "^$SERVICE.service"
+    then
+        if systemctl is-active --quiet $SERVICE
+        then
+            echo "$SERVICE : RUNNING"
+        else
+            echo "$SERVICE : STOPPED"
+        fi
+    else
+        echo "$SERVICE : NOT INSTALLED"
+    fi
+done
+
+echo ""
+echo "10. LOAD AVERAGE"
+echo "------------------------------------------"
+uptime | awk -F'load average:' '{print $2}'
+
+echo ""
+echo "=========================================="
+echo "       MONITORING COMPLETED"
+echo "=========================================="
