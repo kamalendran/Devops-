@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simple-html
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: simple-html
+  template:
+    metadata:
+      labels:
+        app: simple-html
+    spec:
+      containers:
+        - name: simple-html
+          image: YOUR_ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com/simple-html:1.0
+          ports:
+            - containerPort: 80
